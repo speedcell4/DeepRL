@@ -6,6 +6,7 @@
 
 from deep_rl import *
 
+
 # DQN
 def dqn_cart_pole():
     game = 'CartPole-v0'
@@ -33,6 +34,7 @@ def dqn_cart_pole():
     # config.async_actor = False
     config.logger = get_logger()
     run_steps(DQNAgent(config))
+
 
 def dqn_pixel_atari(name):
     config = Config()
@@ -65,6 +67,7 @@ def dqn_pixel_atari(name):
     config.logger = get_logger(file_name=dqn_pixel_atari.__name__)
     run_steps(DQNAgent(config))
 
+
 def dqn_ram_atari(name):
     config = Config()
     config.task_fn = lambda: RamAtari(name, no_op=30, frame_skip=4,
@@ -79,12 +82,13 @@ def dqn_ram_atari(name):
     config.discount = 0.99
     config.target_network_update_freq = 10000
     config.max_episode_length = 0
-    config.exploration_steps= 100
+    config.exploration_steps = 100
     config.sgd_update_frequency = 4
     config.gradient_clip = 5
     config.double_q = True
     config.logger = get_logger()
     run_steps(DQNAgent(config))
+
 
 # QR DQN
 def quantile_regression_dqn_cart_pole():
@@ -108,6 +112,7 @@ def quantile_regression_dqn_cart_pole():
     config.max_steps = 1e5
     config.logger = get_logger()
     run_steps(QuantileRegressionDQNAgent(config))
+
 
 def quantile_regression_dqn_pixel_atari(name):
     config = Config()
@@ -136,6 +141,7 @@ def quantile_regression_dqn_pixel_atari(name):
     config.logger = get_logger(file_name=quantile_regression_dqn_pixel_atari.__name__)
     run_steps(QuantileRegressionDQNAgent(config))
 
+
 # C51
 def categorical_dqn_cart_pole():
     game = 'CartPole-v0'
@@ -162,6 +168,7 @@ def categorical_dqn_cart_pole():
     config.max_steps = 1e5
     config.logger = get_logger()
     run_steps(CategoricalDQNAgent(config))
+
 
 def categorical_dqn_pixel_atari(name):
     config = Config()
@@ -191,6 +198,7 @@ def categorical_dqn_pixel_atari(name):
     config.logger = get_logger(file_name=categorical_dqn_pixel_atari.__name__)
     run_steps(CategoricalDQNAgent(config))
 
+
 # A2C
 def a2c_cart_pole():
     config = Config()
@@ -211,6 +219,7 @@ def a2c_cart_pole():
     config.rollout_length = 5
     config.gradient_clip = 5
     run_steps(A2CAgent(config))
+
 
 def a2c_pixel_atari(name):
     config = Config()
@@ -235,6 +244,7 @@ def a2c_pixel_atari(name):
     config.logger = get_logger(file_name=a2c_pixel_atari.__name__)
     run_steps(A2CAgent(config))
 
+
 def a2c_continuous():
     config = Config()
     config.history_length = 4
@@ -258,6 +268,7 @@ def a2c_continuous():
     config.logger = get_logger(file_name=a2c_continuous.__name__)
     run_steps(A2CAgent(config))
 
+
 # N-Step DQN
 def n_step_dqn_cart_pole():
     config = Config()
@@ -274,6 +285,7 @@ def n_step_dqn_cart_pole():
     config.gradient_clip = 5
     config.logger = get_logger()
     run_steps(NStepDQNAgent(config))
+
 
 def n_step_dqn_pixel_atari(name):
     config = Config()
@@ -297,6 +309,7 @@ def n_step_dqn_pixel_atari(name):
     config.logger = get_logger(file_name=n_step_dqn_pixel_atari.__name__)
     run_steps(NStepDQNAgent(config))
 
+
 # Option-Critic
 def option_critic_cart_pole():
     config = Config()
@@ -316,6 +329,7 @@ def option_critic_cart_pole():
     config.gradient_clip = 5
     config.logger = get_logger()
     run_steps(OptionCriticAgent(config))
+
 
 def option_ciritc_pixel_atari(name):
     config = Config()
@@ -341,6 +355,7 @@ def option_ciritc_pixel_atari(name):
     config.logger = get_logger(file_name=option_ciritc_pixel_atari.__name__)
     run_steps(OptionCriticAgent(config))
 
+
 # PPO
 def ppo_cart_pole():
     config = Config()
@@ -362,6 +377,7 @@ def ppo_cart_pole():
     config.log_interval = 128 * 5 * 10
     config.logger = get_logger()
     run_steps(PPOAgent(config))
+
 
 def ppo_pixel_atari(name):
     config = Config()
@@ -390,13 +406,15 @@ def ppo_pixel_atari(name):
     config.logger = get_logger(file_name=ppo_pixel_atari.__name__)
     run_steps(PPOAgent(config))
 
+
 def ppo_continuous():
     config = Config()
     config.num_workers = 1
     # task_fn = lambda log_dir: Pendulum(log_dir=log_dir)
     # task_fn = lambda log_dir: Bullet('AntBulletEnv-v0', log_dir=log_dir)
     task_fn = lambda log_dir: Roboschool('RoboschoolHopper-v1', log_dir=log_dir)
-    config.task_fn = lambda: ParallelizedTask(task_fn, config.num_workers, log_dir=get_default_log_dir(ppo_continuous.__name__))
+    config.task_fn = lambda: ParallelizedTask(task_fn, config.num_workers,
+                                              log_dir=get_default_log_dir(ppo_continuous.__name__))
     config.eval_env = task_fn(None)
 
     config.network_fn = lambda: GaussianActorCriticNet(
@@ -415,6 +433,7 @@ def ppo_continuous():
     config.max_steps = 2e7
     config.logger = get_logger()
     run_steps(PPOAgent(config))
+
 
 # DDPG
 def ddpg_low_dim_state():
@@ -439,11 +458,12 @@ def ddpg_low_dim_state():
     config.replay_fn = lambda: Replay(memory_size=int(1e6), batch_size=64)
     config.discount = 0.99
     config.random_process_fn = lambda: OrnsteinUhlenbeckProcess(
-        size=(config.action_dim, ), std=LinearSchedule(0.2))
+        size=(config.action_dim,), std=LinearSchedule(0.2))
     config.min_memory_size = 64
     config.target_network_mix = 1e-3
     config.logger = get_logger()
     run_steps(DDPGAgent(config))
+
 
 def ddpg_pixel():
     config = Config()
@@ -454,7 +474,7 @@ def ddpg_pixel():
     phi_body = NatureConvBody()
     config.network_fn = lambda: DeterministicActorCriticNet(
         config.state_dim, config.action_dim, phi_body=phi_body,
-        actor_body=FCBody(phi_body.feature_dim, (50, ), gate=F.relu),
+        actor_body=FCBody(phi_body.feature_dim, (50,), gate=F.relu),
         critic_body=OneLayerFCBodyWithAction(
             phi_body.feature_dim, config.action_dim, 50, gate=F.relu),
         actor_opt_fn=lambda params: torch.optim.Adam(params, lr=1e-4),
@@ -465,12 +485,13 @@ def ddpg_pixel():
     config.state_normalizer = ImageNormalizer()
     config.max_steps = 1e7
     config.random_process_fn = lambda: OrnsteinUhlenbeckProcess(
-        size=(config.action_dim, ), std=LinearSchedule(0.2))
+        size=(config.action_dim,), std=LinearSchedule(0.2))
     config.min_memory_size = 64
     config.target_network_mix = 1e-3
     config.log_interval = 100
     config.logger = get_logger(file_name=ddpg_pixel.__name__)
     run_steps(DDPGAgent(config))
+
 
 def plot():
     import matplotlib.pyplot as plt
@@ -522,6 +543,7 @@ def plot():
 
     plt.show()
 
+
 def action_conditional_video_prediction():
     game = 'PongNoFrameskip-v4'
     prefix = '.'
@@ -536,6 +558,7 @@ def action_conditional_video_prediction():
 
     # Train the action conditional video prediction model
     # acvp_train(game, prefix)
+
 
 if __name__ == '__main__':
     mkdir('data/video')
@@ -570,4 +593,3 @@ if __name__ == '__main__':
     # action_conditional_video_prediction()
 
     # plot()
-

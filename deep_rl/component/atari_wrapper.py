@@ -5,8 +5,10 @@ import gym
 from gym import spaces
 from gym.spaces import Box
 import cv2
+
 cv2.ocl.setUseOpenCL(False)
 from collections import deque
+
 
 class NoopResetEnv(gym.Wrapper):
     def __init__(self, env, noop_max=30):
@@ -25,7 +27,7 @@ class NoopResetEnv(gym.Wrapper):
         if self.override_num_noops is not None:
             noops = self.override_num_noops
         else:
-            noops = self.unwrapped.np_random.randint(1, self.noop_max + 1) #pylint: disable=E1101
+            noops = self.unwrapped.np_random.randint(1, self.noop_max + 1)  # pylint: disable=E1101
         assert noops > 0
         obs = None
         for _ in range(noops):
@@ -36,6 +38,7 @@ class NoopResetEnv(gym.Wrapper):
 
     def step(self, ac):
         return self.env.step(ac)
+
 
 class FireResetEnv(gym.Wrapper):
     def __init__(self, env):
@@ -57,6 +60,7 @@ class FireResetEnv(gym.Wrapper):
     def step(self, ac):
         return self.env.step(ac)
 
+
 class EpisodicLifeEnv(gym.Wrapper):
     def __init__(self, env):
         """Make end-of-life == end-of-episode, but only reset on true game over.
@@ -64,7 +68,7 @@ class EpisodicLifeEnv(gym.Wrapper):
         """
         gym.Wrapper.__init__(self, env)
         self.lives = 0
-        self.was_real_done  = True
+        self.was_real_done = True
 
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
@@ -93,13 +97,14 @@ class EpisodicLifeEnv(gym.Wrapper):
         self.lives = self.env.unwrapped.ale.lives()
         return obs
 
+
 class MaxAndSkipEnv(gym.Wrapper):
     def __init__(self, env, skip=4):
         """Return only every `skip`-th frame"""
         gym.Wrapper.__init__(self, env)
         # most recent raw observations (for max pooling across time steps)
-        self._obs_buffer = np.zeros((2,)+env.observation_space.shape, dtype=np.uint8)
-        self._skip       = skip
+        self._obs_buffer = np.zeros((2,) + env.observation_space.shape, dtype=np.uint8)
+        self._skip = skip
 
     def step(self, action):
         """Repeat action, sum reward, and max over last observations."""
@@ -121,11 +126,12 @@ class MaxAndSkipEnv(gym.Wrapper):
     def reset(self, **kwargs):
         return self.env.reset(**kwargs)
 
+
 class SkipEnv(gym.Wrapper):
     def __init__(self, env=None, skip=4):
         """Return only every `skip`-th frame"""
         super(SkipEnv, self).__init__(env)
-        self._skip       = skip
+        self._skip = skip
 
     def step(self, action):
         total_reward = 0.0
@@ -142,6 +148,7 @@ class SkipEnv(gym.Wrapper):
         obs = self.env.reset()
         return obs
 
+
 class WarpFrame(gym.ObservationWrapper):
     def __init__(self, env):
         """Warp frames to 84x84 as done in the Nature paper and later work."""
@@ -149,12 +156,13 @@ class WarpFrame(gym.ObservationWrapper):
         self.width = 84
         self.height = 84
         self.observation_space = spaces.Box(low=0, high=255,
-            shape=(self.height, self.width, 1), dtype=np.uint8)
+                                            shape=(self.height, self.width, 1), dtype=np.uint8)
 
     def observation(self, frame):
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         frame = cv2.resize(frame, (self.width, self.height), interpolation=cv2.INTER_AREA)
         return frame[:, :, None]
+
 
 class LazyFrames(object):
     def __init__(self, frames):
@@ -178,6 +186,7 @@ class LazyFrames(object):
 
     def __getitem__(self, i):
         return self.__array__()[i]
+
 
 class StackFrame(gym.Wrapper):
     def __init__(self, env, k):
@@ -208,20 +217,22 @@ class StackFrame(gym.Wrapper):
         assert len(self.frames) == self.k
         return LazyFrames(list(self.frames))
 
+
 class WrapPyTorch(gym.ObservationWrapper):
     # from https://github.com/ikostrikov/pytorch-a2c-ppo-acktr/blob/master/envs.py
     def __init__(self, env=None):
         super(WrapPyTorch, self).__init__(env)
         obs_shape = self.observation_space.shape
         self.observation_space = Box(
-            self.observation_space.low[0,0,0],
-            self.observation_space.high[0,0,0],
+            self.observation_space.low[0, 0, 0],
+            self.observation_space.high[0, 0, 0],
             [obs_shape[2], obs_shape[1], obs_shape[0]],
             dtype=np.uint8
         )
 
     def observation(self, observation):
         return observation.transpose(2, 0, 1)
+
 
 class DatasetEnv(gym.Wrapper):
     def __init__(self, env=None):
@@ -247,11 +258,14 @@ class DatasetEnv(gym.Wrapper):
         self.saved_obs.append(obs)
         return obs
 
+
 class RenderEnv(gym.Wrapper):
     def __init__(self, env):
         gym.Wrapper.__init__(self, env)
         self.observation_space = spaces.Box(low=0, high=255,
-            shape=(self.env.unwrapped._render_height, self.env.unwrapped._render_width, 3), dtype=np.uint8)
+                                            shape=(
+                                            self.env.unwrapped._render_height, self.env.unwrapped._render_width, 3),
+                                            dtype=np.uint8)
 
     def step(self, action):
         _, reward, done, info = self.env.step(action)
@@ -263,12 +277,14 @@ class RenderEnv(gym.Wrapper):
         obs = self.env.render('rgb_array')
         return obs
 
+
 def make_atari(env_id, frame_skip=4):
     env = gym.make(env_id)
     assert 'NoFrameskip' in env.spec.id
     env = NoopResetEnv(env, noop_max=30)
     env = MaxAndSkipEnv(env, skip=frame_skip)
     return env
+
 
 def wrap_deepmind(env, episode_life=True, history_length=1):
     """Configure environment for DeepMind-style Atari.

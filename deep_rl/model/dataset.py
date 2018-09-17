@@ -11,6 +11,7 @@ from ..component import *
 from deep_rl.utils import *
 from skimage import io
 
+
 def episode(agent, task):
     policy = GreedyPolicy(epsilon=0.2, final_step=1, min_epsilon=0.2)
     state_normalizer = ImageNormalizer()
@@ -28,6 +29,7 @@ def episode(agent, task):
         if done:
             break
     return total_rewards, steps
+
 
 def generate_dataset(game, a2c_model, prefix):
     config = Config()
@@ -78,4 +80,3 @@ def generate_dataset(game, a2c_model, prefix):
     with open('%s/dataset/%s/meta.bin' % (prefix, game), 'wb') as f:
         pickle.dump({'episodes': ep,
                      'mean_obs': obs_mean}, f)
-

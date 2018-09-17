@@ -8,6 +8,7 @@ from ..network import *
 from ..component import *
 from .BaseAgent import *
 
+
 class PPOAgent(BaseAgent):
     def __init__(self, config):
         BaseAgent.__init__(self, config)
@@ -60,7 +61,8 @@ class PPOAgent(BaseAgent):
                 advantages = advantages * config.gae_tau * config.discount * terminals + td_error
             processed_rollout[i] = [states, actions, log_probs, returns, advantages]
 
-        states, actions, log_probs_old, returns, advantages = map(lambda x: torch.cat(x, dim=0), zip(*processed_rollout))
+        states, actions, log_probs_old, returns, advantages = map(lambda x: torch.cat(x, dim=0),
+                                                                  zip(*processed_rollout))
         advantages = (advantages - advantages.mean()) / advantages.std()
 
         batcher = Batcher(states.size(0) // config.num_mini_batches, [np.arange(states.size(0))])

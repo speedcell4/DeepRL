@@ -15,6 +15,7 @@ from ..utils import *
 from tqdm import tqdm
 from ..network import *
 
+
 class Network(nn.Module, BaseNet):
     def __init__(self, num_actions, gpu=0):
         super(Network, self).__init__()
@@ -40,9 +41,8 @@ class Network(nn.Module, BaseNet):
         self.init_weights()
         self.criterion = nn.MSELoss()
         self.opt = torch.optim.Adam(self.parameters(), 1e-4)
-        
-        self.set_gpu(gpu)
 
+        self.set_gpu(gpu)
 
     def init_weights(self):
         for layer in self.children():
@@ -98,6 +98,7 @@ class Network(nn.Module, BaseNet):
         a = tensor(a)
         return self.forward(x, a).cpu().data.numpy()
 
+
 def load_episode(game, ep, num_actions, prefix):
     path = '%s/dataset/%s/%05d' % (prefix, game, ep)
     with open('%s/action.bin' % (path), 'rb') as f:
@@ -116,6 +117,7 @@ def load_episode(game, ep, num_actions, prefix):
 
     return frames, encoded_actions
 
+
 def extend_frames(frames, actions):
     buffer = deque(maxlen=4)
     extended_frames = []
@@ -129,6 +131,7 @@ def extend_frames(frames, actions):
     actions = actions[3:, :]
 
     return np.stack(extended_frames), actions, np.stack(targets)
+
 
 def acvp_train(game, prefix):
     env = gym.make(game)
@@ -179,8 +182,10 @@ def acvp_train(game, prefix):
                             test_batcher.reset()
                             x, a, y = test_batcher.next_batch()
                             y_ = post_process(net.predict(pre_process(x), a))
-                            torchvision.utils.save_image(torch.from_numpy(y_), 'data/acvp-sample/%s-%09d.png' % (game, iteration))
-                            torchvision.utils.save_image(torch.from_numpy(y), 'data/acvp-sample/%s-%09d-truth.png' % (game, iteration))
+                            torchvision.utils.save_image(torch.from_numpy(y_),
+                                                         'data/acvp-sample/%s-%09d.png' % (game, iteration))
+                            torchvision.utils.save_image(torch.from_numpy(y),
+                                                         'data/acvp-sample/%s-%09d-truth.png' % (game, iteration))
 
                     logger.info('Iteration %d, test loss %f' % (iteration, np.mean(losses)))
                     torch.save(net.state_dict(), 'data/acvp-%s.bin' % (game))

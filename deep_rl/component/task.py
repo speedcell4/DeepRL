@@ -10,6 +10,7 @@ from .bench import Monitor
 from ..utils import *
 import uuid
 
+
 class BaseTask:
     def __init__(self):
         pass
@@ -32,6 +33,7 @@ class BaseTask:
     def seed(self, random_seed):
         return self.env.seed(random_seed)
 
+
 class ClassicalControl(BaseTask):
     def __init__(self, name='CartPole-v0', max_steps=200, log_dir=None):
         BaseTask.__init__(self)
@@ -41,6 +43,7 @@ class ClassicalControl(BaseTask):
         self.action_dim = self.env.action_space.n
         self.state_dim = self.env.observation_space.shape[0]
         self.env = self.set_monitor(self.env, log_dir)
+
 
 class PixelAtari(BaseTask):
     def __init__(self, name, seed=0, log_dir=None,
@@ -59,6 +62,7 @@ class PixelAtari(BaseTask):
         self.state_dim = self.env.observation_space.shape
         self.name = name
 
+
 class RamAtari(BaseTask):
     def __init__(self, name, no_op, frame_skip, log_dir=None, episode_life=True):
         BaseTask.__init__(self)
@@ -76,6 +80,7 @@ class RamAtari(BaseTask):
         self.action_dim = self.env.action_space.n
         self.state_dim = 128
 
+
 class Pendulum(BaseTask):
     def __init__(self, log_dir=None):
         BaseTask.__init__(self)
@@ -88,6 +93,7 @@ class Pendulum(BaseTask):
     def step(self, action):
         return BaseTask.step(self, np.clip(2 * action, -2, 2))
 
+
 class Box2DContinuous(BaseTask):
     def __init__(self, name, log_dir=None):
         BaseTask.__init__(self)
@@ -99,6 +105,7 @@ class Box2DContinuous(BaseTask):
 
     def step(self, action):
         return BaseTask.step(self, np.clip(action, -1, 1))
+
 
 class CarRacing(BaseTask):
     def __init__(self, history_len=4, frame_skip=4, log_dir=None):
@@ -122,6 +129,7 @@ class CarRacing(BaseTask):
         action = np.clip(action, self.action_clip_min, self.action_clip_max)
         return self.env.step(action)
 
+
 class Roboschool(BaseTask):
     def __init__(self, name, log_dir=None):
         import roboschool
@@ -135,6 +143,7 @@ class Roboschool(BaseTask):
     def step(self, action):
         return BaseTask.step(self, np.clip(action, -1, 1))
 
+
 class Bullet(BaseTask):
     def __init__(self, name, log_dir=None):
         import pybullet_envs
@@ -147,6 +156,7 @@ class Bullet(BaseTask):
 
     def step(self, action):
         return BaseTask.step(self, np.clip(action, -1, 1))
+
 
 class PixelBullet(BaseTask):
     def __init__(self, name, seed=0, log_dir=None, frame_skip=4, history_length=4):
@@ -164,6 +174,7 @@ class PixelBullet(BaseTask):
         self.action_dim = env.action_space.shape[0]
         self.state_dim = env.observation_space.shape
         self.env = env
+
 
 class ProcessTask:
     def __init__(self, task_fn, log_dir=None):
@@ -184,11 +195,13 @@ class ProcessTask:
     def close(self):
         self.pipe.send([_ProcessWrapper.EXIT, None])
 
+
 class _ProcessWrapper(mp.Process):
     STEP = 0
     RESET = 1
     EXIT = 2
     SPECS = 3
+
     def __init__(self, pipe, task_fn, log_dir):
         mp.Process.__init__(self)
         self.pipe = pipe
@@ -213,6 +226,7 @@ class _ProcessWrapper(mp.Process):
                 self.pipe.send([task.state_dim, task.action_dim, task.name])
             else:
                 raise Exception('Unknown command')
+
 
 class ParallelizedTask:
     def __init__(self, task_fn, num_workers, log_dir=None, single_process=False):

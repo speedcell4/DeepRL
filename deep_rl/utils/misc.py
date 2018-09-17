@@ -11,12 +11,14 @@ import datetime
 import torch
 import time
 from .torch_utils import *
+
 try:
     # python >= 3.5
     from pathlib import Path
 except:
     # python == 2.7
     from pathlib2 import Path
+
 
 def run_steps(agent):
     random_seed()
@@ -40,18 +42,23 @@ def run_steps(agent):
             break
         agent.step()
 
+
 def get_time_str():
     return datetime.datetime.now().strftime("%y%m%d-%H%M%S")
+
 
 def get_default_log_dir(name):
     return './log/%s-%s' % (name, get_time_str())
 
+
 def mkdir(path):
     Path(path).mkdir(parents=True, exist_ok=True)
+
 
 def close_obj(obj):
     if hasattr(obj, 'close'):
         obj.close()
+
 
 class Batcher:
     def __init__(self, batch_size, data):

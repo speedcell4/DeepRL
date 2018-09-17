@@ -7,6 +7,7 @@
 from ..network import *
 from .BaseAgent import *
 
+
 class OptionCriticAgent(BaseAgent):
     def __init__(self, config):
         BaseAgent.__init__(self, config)
@@ -43,7 +44,9 @@ class OptionCriticAgent(BaseAgent):
             self.online_rewards += rewards
             rewards = config.reward_normalizer(rewards)
             q_options_next, betas_next, log_pi_next = self.network(next_states)
-            rollout.append([q_options, betas, options, self.prev_options, rewards, 1 - terminals, np.copy(self.is_initial_betas), intra_log_pi, actions])
+            rollout.append(
+                [q_options, betas, options, self.prev_options, rewards, 1 - terminals, np.copy(self.is_initial_betas),
+                 intra_log_pi, actions])
             self.is_initial_betas = np.asarray(terminals, dtype=np.float32)
 
             np_q_options_next = q_options_next.cpu().detach().numpy()
@@ -77,7 +80,7 @@ class OptionCriticAgent(BaseAgent):
         prev_options = tensor(self.prev_options).long().unsqueeze(1)
         betas_prev_options = betas.gather(1, prev_options)
 
-        returns = (1 - betas_prev_options) * target_q_options.gather(1, prev_options) +\
+        returns = (1 - betas_prev_options) * target_q_options.gather(1, prev_options) + \
                   betas_prev_options * torch.max(target_q_options, dim=1, keepdim=True)[0]
         returns = returns.detach()
 
@@ -103,7 +106,8 @@ class OptionCriticAgent(BaseAgent):
             betas = betas * (1 - is_initial_betas)
             processed_rollout[i] = [q_omg, returns, betas, advantage_omg.detach(), log_action_prob, entropy_loss]
 
-        q_omg, returns, beta_omg, advantage_omg, log_action_prob, entropy_loss = map(lambda x: torch.cat(x, dim=0), zip(*processed_rollout))
+        q_omg, returns, beta_omg, advantage_omg, log_action_prob, entropy_loss = map(lambda x: torch.cat(x, dim=0),
+                                                                                     zip(*processed_rollout))
         pi_loss = -log_action_prob * (returns - q_omg.detach()) + config.entropy_weight * entropy_loss
         pi_loss = pi_loss.mean()
         q_loss = 0.5 * (q_omg - returns).pow(2).mean()

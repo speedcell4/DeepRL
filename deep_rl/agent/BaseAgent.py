@@ -11,6 +11,7 @@ import torch.multiprocessing as mp
 from collections import deque
 import sys
 
+
 class BaseAgent:
     def __init__(self, config):
         self.config = config
@@ -46,6 +47,7 @@ class BaseAgent:
             rewards.append(self.eval_episode())
         self.config.logger.info('evaluation episode return: %f(%f)' % (
             np.mean(rewards), np.std(rewards) / np.sqrt(len(rewards))))
+
 
 class BaseActor(mp.Process):
     STEP = 0

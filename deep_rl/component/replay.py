@@ -10,6 +10,7 @@ import torch.multiprocessing as mp
 from collections import deque
 from ..utils import *
 
+
 class Replay:
     def __init__(self, memory_size, batch_size):
         self.memory_size = memory_size
@@ -43,11 +44,13 @@ class Replay:
     def empty(self):
         return not len(self.data)
 
+
 class AsyncReplay(mp.Process):
     FEED = 0
     SAMPLE = 1
     EXIT = 2
     FEED_BATCH = 3
+
     def __init__(self, memory_size, batch_size):
         mp.Process.__init__(self)
         self.pipe, self.worker_pipe = mp.Pipe()
@@ -125,4 +128,3 @@ class AsyncReplay(mp.Process):
     def close(self):
         self.pipe.send([self.EXIT, None])
         self.pipe.close()
-

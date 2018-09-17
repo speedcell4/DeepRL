@@ -9,6 +9,7 @@ from ..component import *
 from ..utils import *
 from .BaseAgent import *
 
+
 class NStepDQNAgent(BaseAgent):
     def __init__(self, config):
         BaseAgent.__init__(self, config)
@@ -63,7 +64,7 @@ class NStepDQNAgent(BaseAgent):
             returns = rewards + config.discount * terminals * returns
             processed_rollout[i] = [q, returns]
 
-        q, returns= map(lambda x: torch.cat(x, dim=0), zip(*processed_rollout))
+        q, returns = map(lambda x: torch.cat(x, dim=0), zip(*processed_rollout))
         loss = 0.5 * (q - returns).pow(2).mean()
         self.optimizer.zero_grad()
         loss.backward()

@@ -9,8 +9,10 @@ import os
 import numpy as np
 import torch
 import logging
+
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s: %(message)s')
 from .misc import *
+
 
 def get_logger(name='MAIN', file_name=None, log_dir='./log', skip=False, level=logging.INFO):
     logger = logging.getLogger(name)
@@ -22,6 +24,7 @@ def get_logger(name='MAIN', file_name=None, log_dir='./log', skip=False, level=l
         fh.setLevel(level)
         logger.addHandler(fh)
     return Logger(log_dir, logger, skip)
+
 
 class Logger(object):
     def __init__(self, log_dir, vanilla_logger, skip=False):
